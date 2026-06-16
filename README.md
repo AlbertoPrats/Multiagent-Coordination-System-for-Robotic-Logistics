@@ -39,7 +39,14 @@
 ### 💻 Software Stack
 * **Operating System**: Ubuntu 22.04 LTS
 * **Python** `v3.10.0`
-* **Middleware**: **ROS 2 (Jazzy)**
+* **Middleware**: **ROS 2 (Jazzy)**:
+  * catkin_pkg
+  * ros-jazzy-navigation2
+  * ros-jazzy-nav2-bringup
+  * ros-jazzy-slam-toolbox
+  * ros-jazzy-robot-localization
+  * ros-jazzy-ros2-control
+  * ros-jazzy-ros2-controllers
 * **Simulation Environments**: 
   * **Gazebo Harmonic**: Hosts the physical physics engine and mobile TurtleBot units.
   * **ABB RobotStudio**: Manages the native RAPID motion sequences and target joints for the stationary robot arm station.
@@ -115,11 +122,15 @@ The core module (LogicaGeneral2.py) governs the entire system via a highly scala
 2. **Synchronization & Telemetry**: Processes real-time joint positions from the ABB arm and destination arrivals from the mobile robots, dynamically holding or releasing agents.
 3. **Scheduler & Task Allocation**: Pairs pending tasks with available agents based on capabilities, applying a mutual exclusion locking mechanism to prevent station duplication or collisions.
 
+---
+
 ## 🧭 Multi-Robot Navigation & Advanced Localization
 
 * **Namespace Isolation**: Standard Nav2 configurations do not natively support multiple robots sharing baseline topics. This was resolved by dynamically injecting the robot's namespace into all URDF frame prefixes and cloning/modifying the master nav2.yaml file per instance on the fly using the launch script.
 
 * **Overcoming Laser Drift (Ground Truth)**: To prevent physical wheel slippage and inertia in Gazebo from throwing off the default AMCL filter (which caused sudden localization jumps), AMCL was disabled. Instead, a custom localization workflow (correccionPos.py and tf_filter.py) intercepts the TF tree, reads the exact absolute coordinate from Gazebo's PosePublisher plugin, and continuously updates the odom to base_footprint_link transform loop for drift-free navigation.
+
+---
 
 ## 🦾 Industrial Arm Integration
 The IRB 120 model was obtained from https://github.com/IFRA-Cranfield/ros2_SimRealRobotControl 
@@ -130,20 +141,23 @@ The IRB 120 model was obtained from https://github.com/IFRA-Cranfield/ros2_SimRe
 
 * **Simulation Optimization**: To resolve severe drops in Gazebo's Real-Time Factor (which fell to 10%), the arm's URDF model was heavily optimized: all dynamic collision matrices for moving links were stripped out (as RobotStudio pre-validates paths safely), and geometric meshes were simplified in Blender. Link mass properties were also increased by a factor of 10 to prevent the arm from tipping over due to losing its static world reference.
 
+---
 
 
-
-### 🗺️ Navigation & Localization Configuration
-* **`nav2_params.yaml`**: Houses customized tuning parameters for the Nav2 controllers. Includes adjusted costmap inflation inflation radii to guarantee that mobile units do not bottleneck or clip collision geometries inside tight corridors.
-* **`amcl_config.rviz`**: Preset RViz layout monitoring particle filters, laser arrays, and covariance thresholds during active paths.
-
-### 🏢 World Models & Assets
-* **`kitchen_zone.world`**: The structural environment layout mapped natively inside Gazebo, featuring collision meshes for preparation tables, cooking zones, and pick-up zones.
-* **`abb_irb120_description/`**: Unified Robot Description Format (`URDF`) configurations, visual meshes, and transmission parameters for the ABB arm integration.
-
-### 🧠 Logic Execution
-* **`fleet_manager.py`**: State machine routing mobile agents based on active request priority (e.g., fetching a raw ingredient vs. delivering a processed plate).
-* **`abb_bridge.nodes` / Socket Hooks**: Handles real-time TCP/IP translation layers bridging Python execution strings into native ABB RAPID commands.
+├── proyecto/
+│   ├── config/               # YAML configuration files (dynamic Nav2 configurations)
+│   ├── launch/
+│   │   ├── LogicaGeneral2.py # "Head Chef" core module (State Machine)
+│   │   ├── mov2.py           # Navigation bridge and odometry control node
+│   │   ├── simulation.launch.py # Main launch file for the environment, Nav2, and robots
+│   │   └── ...
+│   ├── src/                  # Localization filters (correccionPos.py, tf_filter.py)
+│   ├── urdf/                 # Optimized XACRO/URDF models for the ABB IRB 120 and mobile robots
+│   ├── worlds/               # Gazebo Harmonic world files featuring the kitchen map
+│   ├── CMakeLists.txt
+│   └── package.xml
+├── rapid/                    # RAPID source code files for the RobotStudio controller
+└── README.md                 # Project documentation
 
 </details>
 
@@ -151,12 +165,24 @@ The IRB 120 model was obtained from https://github.com/IFRA-Cranfield/ros2_SimRe
 
 ## 🚀 Execution & Launch Sequence
 
-### 1. Initial Setup
-Ensure the ROS 2 workspace workspace (`colcon_ws`) is compiled and correctly sourced:
-    ```bash
-      cd ~/colcon_ws
-      colcon build --symlink-install
-      source install/setup.bash
-
+1. Ensure the ROS 2 workspace is compiled and correctly sourced:
+```bash
+  mkdir -p /overcooked/src
+  source /opt/ros/jazzy/setup.bash
+  colcon build
+  source install/setup.bash
+  colcon build --symlink-install
+```
+2. Ensure that both the "Head Chef" logic script and the RobotStudio controller point to the exact IP address of the Windows machine running RobotStudio.
+3. Open a terminal at the root of the compiled workspace and execute the main launch file:
+```bash
+  ros2 launch proyecto simulation.launch.py
+```
+4. Open the workspace station within RobotStudio, sync the code to the virtual controller, and press Play (Execute). The RAPID program will bind the socket and enter a passive listening state, waiting for the ROS2 client connection.
+5. Open a new terminal, navigate to the launch script directory, and start the node:
+```bash
+  cd ~/overcooked_ws/src/proyecto/launch/
+  python3 LogicaGeneral2.py
+```
 
 This system has been developed as a project in collaboration with Alejandro Sosa Viña and Miriam García de la Reina Padilla.
