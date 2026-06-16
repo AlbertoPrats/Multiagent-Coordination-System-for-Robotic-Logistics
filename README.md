@@ -78,7 +78,7 @@ The 3D simulated environment in **Gazebo** recreates a functional kitchen layout
 
 The ecosystem features a fully decoupled, hybrid architecture where **ROS2 acts as the Logical Brain**, interacting bi-directionally with **RobotStudio** and **Gazebo**.
 
-    ```mermaid
+  ```mermaid
     graph TD
         subgraph ROS2 Ecosystem [ROS2 Ecosystem - Logical Brain]
             LG[LogicaGeneral2.py: Head Chef]
