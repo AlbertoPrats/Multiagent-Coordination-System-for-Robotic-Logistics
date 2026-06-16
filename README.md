@@ -48,7 +48,7 @@
   * ros-jazzy-ros2-control
   * ros-jazzy-ros2-controllers
 * **Simulation Environments**: 
-  * **Gazebo Harmonic**: Hosts the physical physics engine and mobile TurtleBot units.
+  * **Gazebo Harmonic**: Hosts the physics engine and mobile TurtleBot units.
   * **ABB RobotStudio**: Manages the native RAPID motion sequences and target joints for the stationary robot arm station.
 * **Navigation Stack**: **Nav2** featuring Adaptive Monte Carlo Localization (**AMCL**) for laser-scan localization corrections.
 
@@ -146,7 +146,9 @@ The IRB 120 model was obtained from https://github.com/IFRA-Cranfield/ros2_SimRe
 
 .
 ├── proyecto/
+
 │   ├── config/              # YAML configuration files (dynamic Nav2 configurations)
+
 │   ├── launch/
 │   │   ├── LogicaGeneral2.py # "Head Chef" core module (State Machine)
 │   │   ├── mov2.py          # Navigation bridge and odometry control node
