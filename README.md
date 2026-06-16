@@ -1,7 +1,7 @@
 # Multi-Robot Coordination System for Industrial Logistics Inspired in Overcooked Videogame
 
 <p align="center">
-  <img src="img/Title_img.png" alt="Augmented Reality Robotic Painter" width="600">
+  <img src="img/map.png" alt="Overcooked Robot System" width="600">
 </p>
 
 ---
@@ -22,15 +22,20 @@
 <details>
 <summary>📦 <b>Click here to expand the visual demonstration</b></summary>
 
-  Virtual environment painting:
-![Virtual Painting Demo](img/painting_showcase.gif)
+  Initial starting sequence:
+![Starting Demo](img/starting.gif)
 
-  Physical environment painting: 
-![Physical Painting Demo](img/robot_painting_showcase.gif)
+  ABB cutting action: 
+![ABB Cutting Demo](img/cutting.gif)
 
-  Physical environment painting 2: 
-![Physical Painting Demo2](img/AR_showcase.gif)
+  ABB plating action: 
+![ABB Plating Demo](img/plating.gif)
 
+  Ingredient withdrawal and finished plate delivery: 
+![Delivery Demo](img/delivery_red_ingredients.gif)
+
+  Finished plate delivery 2: 
+![Delivery Demo2](img/delivery_blue.gif)
 
 </details>
 
@@ -72,6 +77,10 @@ The coordination lifecycle executes across three distributed processing structur
 
 The 3D simulated environment in **Gazebo** recreates a functional kitchen layout split into **four distinct operational zones** designed to optimize workflow and prevent spatial deadlocks:
 
+<p align="center">
+  <img src="img/zone_layout.png" alt="Overcooked Robot System Map" width="800">
+</p>
+
 | Operational Area | Involved Agents | Description |
 | :--- | :--- | :--- |
 | **Ingredient Zone** | Mobile Robots | Storage and pantry area. This is the initial spawn point where mobile robots load raw ingredients. |
@@ -85,33 +94,44 @@ The 3D simulated environment in **Gazebo** recreates a functional kitchen layout
 
 The ecosystem features a fully decoupled, hybrid architecture where **ROS2 acts as the Logical Brain**, interacting bi-directionally with **RobotStudio** and **Gazebo**.
 
-  ```mermaid
-    graph TD
-        subgraph ROS2 Ecosystem [ROS2 Ecosystem - Logical Brain]
-            LG[LogicaGeneral2.py: Head Chef]
-            M2[mov2.py: Navigation Bridge]
-            TF[tf_filter.py & correccionPos.py]
-        end
-    
-        subgraph Gazebo Simulator [Gazebo Harmonic - Physical Env]
-            GZ[Kitchen World / Physics]
-            PP[PosePublisher Plugin]
-        end
-    
-        subgraph ABB Environment [RobotStudio - Virtual Controller]
-            RS[RAPID TCP/IP Socket Server]
-            IRB[ABB IRB 120 Arm]
-        end
-    
-        %% Communication Flows
-        LG <-->|Node Instances / Destinations| M2
-        M2 <-->|Nav2 Instances isolated via Namespace| GZ
-        PP -->|Ground Truth / Real Position| TF
-        TF -->|Filter & Perfect Odometry Injection| M2
-        LG <-->|Cut/Plate Commands & Joint Telemetry via Sockets| RS
-        RS <-->|Low-Level Industrial Control| IRB
-        RS -->|Visual Joint Updates| GZ
-```
+graph LR
+    %% Main Blocks/Subgraphs
+    subgraph ROS2_Brain [Cerebro Lógico: ROS2]
+        direction TB
+        LG[LogicaGeneral2.py<br><b>Head Chef</b>]
+        M2[mov2.py<br><b>Nav Bridge</b>]
+        TF[tf_filter.py<br><b>Localization Fix</b>]
+        
+        LG -->|1. Assigns Order| M2
+        TF -->|4. Feeds Pure Odometry| M2
+    end
+
+    subgraph Simulation [Entorno Físico: Gazebo]
+        direction TB
+        GZ[Kitchen World<br><b>Physics</b>]
+        PP[PosePublisher<br><b>Ground Truth</b>]
+        
+        GZ -->|3. Extracts Real Position| PP
+    end
+
+    subgraph Industrial [Industrial Control: RobotStudio]
+        direction TB
+        RS[RAPID Server<br><b>TCP/IP Sockets</b>]
+        IRB[ABB IRB 120<br><b>Arm Execution</b>]
+        
+        RS -->|Controls Mechanics| IRB
+    end
+
+    %% Simple Inter-connections
+    M2 -->|2. Drives Mobile Robots| GZ
+    PP -->|5. Corrects Drift| TF
+    LG <-->|6. Sends Commands / Gets Telemetry| RS
+    RS -.->|7. Syncs Visual Joints| GZ
+
+    %% Visual Styling
+    style ROS2_Brain fill:#e1f5fe,stroke:#03a9f4,stroke-width:2px
+    style Simulation fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    style Industrial fill:#ffebee,stroke:#f44336,stroke-width:2px
 ---
 
 ## 🧠 The "Head Chef" (State Machine)
@@ -143,6 +163,7 @@ The IRB 120 model was obtained from https://github.com/IFRA-Cranfield/ros2_SimRe
 
 ---
 
+## 📂 File System Structure
 
 <table>
   <thead>
