@@ -94,45 +94,32 @@ The 3D simulated environment in **Gazebo** recreates a functional kitchen layout
 
 The ecosystem features a fully decoupled, hybrid architecture where **ROS2 acts as the Logical Brain**, interacting bi-directionally with **RobotStudio** and **Gazebo**.
 
-```mermaid
-graph LR
-    %% Main Blocks/Subgraphs
-    subgraph ROS2_Brain [Cerebro Lógico: ROS2]
-        direction TB
-        LG[LogicaGeneral2.py<br><b>Head Chef</b>]
-        M2[mov2.py<br><b>Nav Bridge</b>]
-        TF[tf_filter.py<br><b>Localization Fix</b>]
-        
-        LG -->|1. Assigns Order| M2
-        TF -->|4. Feeds Pure Odometry| M2
-    end
-
-    subgraph Simulation [Entorno Físico: Gazebo]
-        direction TB
-        GZ[Kitchen World<br><b>Physics</b>]
-        PP[PosePublisher<br><b>Ground Truth</b>]
-        
-        GZ -->|3. Extracts Real Position| PP
-    end
-
-    subgraph Industrial [Industrial Control: RobotStudio]
-        direction TB
-        RS[RAPID Server<br><b>TCP/IP Sockets</b>]
-        IRB[ABB IRB 120<br><b>Arm Execution</b>]
-        
-        RS -->|Controls Mechanics| IRB
-    end
-
-    %% Simple Inter-connections
-    M2 -->|2. Drives Mobile Robots| GZ
-    PP -->|5. Corrects Drift| TF
-    LG <-->|6. Sends Commands / Gets Telemetry| RS
-    RS -.->|7. Syncs Visual Joints| GZ
-
-    %% Visual Styling
-    style ROS2_Brain fill:#e1f5fe,stroke:#03a9f4,stroke-width:2px
-    style Simulation fill:#fff3e0,stroke:#ff9800,stroke-width:2px
-    style Industrial fill:#ffebee,stroke:#f44336,stroke-width:2px
+ ```mermaid
+    graph TD
+        subgraph ROS2 Ecosystem [ROS2 Ecosystem - Logical Brain]
+            LG[LogicaGeneral2.py: Head Chef]
+            M2[mov2.py: Navigation Bridge]
+            TF[tf_filter.py & correccionPos.py]
+        end
+    
+        subgraph Gazebo Simulator [Gazebo Harmonic - Physical Env]
+            GZ[Kitchen World / Physics]
+            PP[PosePublisher Plugin]
+        end
+    
+        subgraph ABB Environment [RobotStudio - Virtual Controller]
+            RS[RAPID TCP/IP Socket Server]
+            IRB[ABB IRB 120 Arm]
+        end
+    
+        %% Communication Flows
+        LG <-->|Node Instances / Destinations| M2
+        M2 <-->|Nav2 Instances isolated via Namespace| GZ
+        PP -->|Ground Truth / Real Position| TF
+        TF -->|Filter & Perfect Odometry Injection| M2
+        LG <-->|Cut/Plate Commands & Joint Telemetry via Sockets| RS
+        RS <-->|Low-Level Industrial Control| IRB
+        RS -->|Visual Joint Updates| GZ
 ```
 ---
 
