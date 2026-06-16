@@ -144,21 +144,68 @@ The IRB 120 model was obtained from https://github.com/IFRA-Cranfield/ros2_SimRe
 ---
 
 
-
-├── proyecto/  
-│    ├── config/                # YAML configuration files (dynamic Nav2 configurations)  
-│  ├── launch/  
-│  │  ├── LogicaGeneral2.py  # "Head Chef" core module (State Machine)  
-│  │  ├── mov2.py            # Navigation bridge and odometry control node  
-│  │  ├── simulation.launch.py # Main launch file for the environment, Nav2, and robots  
-│  │  └── ...  
-│  ├── src/                    # Localization filters (correccionPos.py, tf_filter.py)  
-│  ├── urdf/                    # Optimized XACRO/URDF models for the ABB IRB 120 and mobile robots  
-│  ├── worlds/                  # Gazebo Harmonic world files featuring the kitchen map  
-│  ├── CMakeLists.txt  
-│  └── package.xml  
-├── rapid/                   # RAPID source code files for the RobotStudio controller  
-└── README.md                # Project documentation  
+<table>
+  <thead>
+    <tr>
+      <th>📂 Directory / File</th>
+      <th>📝 Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>📁 proyecto/</b></td>
+      <td>Main ROS2 package folder containing simulation files.</td>
+    </tr>
+    <tr>
+      <td>&nbsp;&nbsp;&nbsp;&nbsp;└── 📁 config/</td>
+      <td>YAML configuration files (dynamic configuration variants for Nav2).</td>
+    </tr>
+    <tr>
+      <td>&nbsp;&nbsp;&nbsp;&nbsp;└── 📁 launch/</td>
+      <td>Launch pipeline scripts.</td>
+    </tr>
+    <tr>
+      <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── 📄 LogicaGeneral2.py</td>
+      <td>"Head Chef" central module (State Machine controller).</td>
+    </tr>
+    <tr>
+      <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── 📄 mov2.py</td>
+      <td>Navigation interface and target destination bridge.</td>
+    </tr>
+    <tr>
+      <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── 📄 simulation.launch.py</td>
+      <td>Master launch file for spawning robots, Gazebo, and Nav2.</td>
+    </tr>
+    <tr>
+      <td>&nbsp;&nbsp;&nbsp;&nbsp;└── 📁 src/</td>
+      <td>Custom localization nodes (<code>correccionPos.py</code>, <code>tf_filter.py</code>).</td>
+    </tr>
+    <tr>
+      <td>&nbsp;&nbsp;&nbsp;&nbsp;└── 📁 urdf/</td>
+      <td>Optimized XACRO/URDF mesh definitions for robots and ABB arm.</td>
+    </tr>
+    <tr>
+      <td>&nbsp;&nbsp;&nbsp;&nbsp;└── 📁 worlds/</td>
+      <td>Gazebo Harmonic environment file containing the kitchen layout.</td>
+    </tr>
+    <tr>
+      <td>&nbsp;&nbsp;&nbsp;&nbsp;├── ⚙️ CMakeLists.txt</td>
+      <td>Package build configuration script.</td>
+    </tr>
+    <tr>
+      <td>&nbsp;&nbsp;&nbsp;&nbsp;└── 📦 package.xml</td>
+      <td>ROS2 manifest detailing project package dependencies.</td>
+    </tr>
+    <tr>
+      <td><b>📁 rapid/</b></td>
+      <td>RobotStudio workspace script directory (RAPID language).</td>
+    </tr>
+    <tr>
+      <td><b>📄 README.md</b></td>
+      <td>Project reference documentation.</td>
+    </tr>
+  </tbody>
+</table>
 
 </details>
 
