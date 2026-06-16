@@ -69,7 +69,7 @@ The 3D simulated environment in **Gazebo** recreates a functional kitchen layout
 | :--- | :--- | :--- |
 | **Ingredient Zone** | Mobile Robots | Storage and pantry area. This is the initial spawn point where mobile robots load raw ingredients. |
 | **Cutting & Plating Zone** | ABB IRB 120 Arm | Exclusive workspace assigned to the industrial manipulator where it executes complex kinematic tasks (cutting food using a knife tool and plating). |
-| **Pick-up Zone** | Manipulator & Robots | Safe interface area. The arm places the finalized dish here, allowing mobile robots to safely collect it without entering the arm's physical workspace. |
+| **Pick-up Zone** | Mobile Robots | Safe interface area. The arm places the finalized dish on the worktop, allowing mobile robots to safely collect it without entering the arm's physical workspace. |
 | **Delivery Zone** | Mobile Robots | Final destination of the route. The mobile robots drop off the completed order, closing the command lifecycle. |
 
 ---
@@ -105,8 +105,30 @@ The ecosystem features a fully decoupled, hybrid architecture where **ROS2 acts 
         RS <-->|Low-Level Industrial Control| IRB
         RS -->|Visual Joint Updates| GZ
 ```
+---
 
+## 🧠 The "Head Chef" (State Machine)
 
+The core module (LogicaGeneral2.py) governs the entire system via a highly scalable, cyclic state machine:
+
+1. **Stochastic Order Monitoring**: Evaluates system robustness under dynamic loads. If fewer than 2 orders are active, it auto-generates new commands with an 80% probability.
+2. **Synchronization & Telemetry**: Processes real-time joint positions from the ABB arm and destination arrivals from the mobile robots, dynamically holding or releasing agents.
+3. **Scheduler & Task Allocation**: Pairs pending tasks with available agents based on capabilities, applying a mutual exclusion locking mechanism to prevent station duplication or collisions.
+
+## 🧭 Multi-Robot Navigation & Advanced Localization
+
+* **Namespace Isolation**: Standard Nav2 configurations do not natively support multiple robots sharing baseline topics. This was resolved by dynamically injecting the robot's namespace into all URDF frame prefixes and cloning/modifying the master nav2.yaml file per instance on the fly using the launch script.
+
+* **Overcoming Laser Drift (Ground Truth)**: To prevent physical wheel slippage and inertia in Gazebo from throwing off the default AMCL filter (which caused sudden localization jumps), AMCL was disabled. Instead, a custom localization workflow (correccionPos.py and tf_filter.py) intercepts the TF tree, reads the exact absolute coordinate from Gazebo's PosePublisher plugin, and continuously updates the odom to base_footprint_link transform loop for drift-free navigation.
+
+## 🦾 Industrial Arm Integration
+The IRB 120 model was obtained from https://github.com/IFRA-Cranfield/ros2_SimRealRobotControl 
+
+* **Real Industrial Control**: The ABB IRB 120 arm is driven by the official RobotStudio environment. It runs a custom RAPID script that sets up a TCP/IP Socket Server on port 5500. ROS2 connects directly to it as a client.
+
+* **Synchronous Telemetry**: Utilizing a cyclic timer interrupt linked to a TRAP routine, RobotStudio streams joint positions (CJointT()) back to ROS2 every 0.2 seconds to keep the Gazebo/RViz visualizers (joint_state_broadcaster) perfectly synchronized.
+
+* **Simulation Optimization**: To resolve severe drops in Gazebo's Real-Time Factor (which fell to 10%), the arm's URDF model was heavily optimized: all dynamic collision matrices for moving links were stripped out (as RobotStudio pre-validates paths safely), and geometric meshes were simplified in Blender. Link mass properties were also increased by a factor of 10 to prevent the arm from tipping over due to losing its static world reference.
 
 
 
