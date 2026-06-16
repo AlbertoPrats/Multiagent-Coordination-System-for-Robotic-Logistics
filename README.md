@@ -1,1 +1,140 @@
-# Multiagent-Coordination-System-for-Robotic-Logistics
+# Multi-Robot Coordination System for Industrial Logistics Inspired in Overcooked Videogame
+
+<p align="center">
+  <img src="img/Title_img.png" alt="Augmented Reality Robotic Painter" width="600">
+</p>
+
+---
+
+## 📊 Project Overview
+
+[![Project Type](https://img.shields.io/badge/Project-Multi--Robot%20System-blue.svg)](#)
+[![ROS 2](https://img.shields.io/badge/ROS2-Jazzy%20%2F%20Iron-orange.svg)](https://docs.ros.org/)
+[![Simulation](https://img.shields.io/badge/Gazebo-Harmonic%20%2F%20RobotStudio-green.svg)](#)
+[![Navigation](https://img.shields.io/badge/Navigation-Nav2%20%2F%20AMCL-yellow.svg)](https://navigation.ros.org/)
+[![Arm](https://img.shields.io/badge/Robot%20Arm-ABB%20IRB%20120-red.svg)](https://new.abb.com/products/robotics/industrial-robots/irb-120)
+
+**Robotic Overcooked** is an advanced multi-robot coordination and task-allocation system inspired by the mechanics of the popular cooperative video game *Overcooked*, this project transitions those scheduling abstractions into a rigorous, simulated industrial kitchen-logistics cell. The application demonstrates how mobile manipulation agents, decentralized fleet managers, and static assembly arms can safely share a confined map layout, minimize navigation interference, and dynamic load-balance ongoing raw ingredient orders.
+
+---
+
+## 🎬 Visual Demonstration
+<details>
+<summary>📦 <b>Click here to expand the visual demonstration</b></summary>
+
+  Virtual environment painting:
+![Virtual Painting Demo](img/painting_showcase.gif)
+
+  Physical environment painting: 
+![Physical Painting Demo](img/robot_painting_showcase.gif)
+
+  Physical environment painting 2: 
+![Physical Painting Demo2](img/AR_showcase.gif)
+
+
+</details>
+
+## 🛠️ Technical Specifications & Prerequisites
+
+### 💻 Software Stack
+* **Operating System**: Ubuntu 22.04 LTS
+* **Python** `v3.10.0`
+* **Middleware**: **ROS 2 (Jazzy)**
+* **Simulation Environments**: 
+  * **Gazebo Harmonic**: Hosts the physical physics engine and mobile TurtleBot units.
+  * **ABB RobotStudio**: Manages the native RAPID motion sequences and target joints for the stationary robot arm station.
+* **Navigation Stack**: **Nav2** featuring Adaptive Monte Carlo Localization (**AMCL**) for laser-scan localization corrections.
+
+---
+
+## 📁 Code Architecture & Components
+
+The workspace maps a physical loop layout separating cooking nodes, loading stations, and dual navigation lanes.
+
+The coordination lifecycle executes across three distributed processing structures:
+
+1. **Central Coordination Core**: Evaluates incoming order tickets, cross-checks active robot state-machines, and issues path targets via Action servers.
+2. **Mobile Fleet Core**: Manages TurtleBot platforms. Incorporates tailored footprint layouts and optimized local planners to correct laser drift anomalies while maintaining localized grid positions.
+3. **Manipulation Core**: Commands the ABB IRB 120 arm, polling continuous socket signals to perform pick-and-place trajectories handling the assembly/cooking cycle.
+
+
+<details>
+<summary>📦 <b>Click here to expand the detailed ROS 2 & Gazebo file structure</b></summary>
+
+## 📌 Environment Overview and Sectors
+
+The 3D simulated environment in **Gazebo** recreates a functional kitchen layout split into **four distinct operational zones** designed to optimize workflow and prevent spatial deadlocks:
+
+| Operational Area | Involved Agents | Description |
+| :--- | :--- | :--- |
+| **Ingredient Zone** | Mobile Robots | Storage and pantry area. This is the initial spawn point where mobile robots load raw ingredients. |
+| **Cutting & Plating Zone** | ABB IRB 120 Arm | Exclusive workspace assigned to the industrial manipulator where it executes complex kinematic tasks (cutting food using a knife tool and plating). |
+| **Pick-up Zone** | Manipulator & Robots | Safe interface area. The arm places the finalized dish here, allowing mobile robots to safely collect it without entering the arm's physical workspace. |
+| **Delivery Zone** | Mobile Robots | Final destination of the route. The mobile robots drop off the completed order, closing the command lifecycle. |
+
+---
+
+## 🏗️ System Architecture
+
+The ecosystem features a fully decoupled, hybrid architecture where **ROS2 acts as the Logical Brain**, interacting bi-directionally with **RobotStudio** and **Gazebo**.
+
+    ```mermaid
+    graph TD
+        subgraph ROS2 Ecosystem [ROS2 Ecosystem - Logical Brain]
+            LG[LogicaGeneral2.py: Head Chef]
+            M2[mov2.py: Navigation Bridge]
+            TF[tf_filter.py & correccionPos.py]
+        end
+    
+        subgraph Gazebo Simulator [Gazebo Harmonic - Physical Env]
+            GZ[Kitchen World / Physics]
+            PP[PosePublisher Plugin]
+        end
+    
+        subgraph ABB Environment [RobotStudio - Virtual Controller]
+            RS[RAPID TCP/IP Socket Server]
+            IRB[ABB IRB 120 Arm]
+        end
+    
+        %% Communication Flows
+        LG <-->|Node Instances / Destinations| M2
+        M2 <-->|Nav2 Instances isolated via Namespace| GZ
+        PP -->|Ground Truth / Real Position| TF
+        TF -->|Filter & Perfect Odometry Injection| M2
+        LG <-->|Cut/Plate Commands & Joint Telemetry via Sockets| RS
+        RS <-->|Low-Level Industrial Control| IRB
+        RS -->|Visual Joint Updates| GZ
+
+
+
+
+
+
+
+### 🗺️ Navigation & Localization Configuration
+* **`nav2_params.yaml`**: Houses customized tuning parameters for the Nav2 controllers. Includes adjusted costmap inflation inflation radii to guarantee that mobile units do not bottleneck or clip collision geometries inside tight corridors.
+* **`amcl_config.rviz`**: Preset RViz layout monitoring particle filters, laser arrays, and covariance thresholds during active paths.
+
+### 🏢 World Models & Assets
+* **`kitchen_zone.world`**: The structural environment layout mapped natively inside Gazebo, featuring collision meshes for preparation tables, cooking zones, and pick-up zones.
+* **`abb_irb120_description/`**: Unified Robot Description Format (`URDF`) configurations, visual meshes, and transmission parameters for the ABB arm integration.
+
+### 🧠 Logic Execution
+* **`fleet_manager.py`**: State machine routing mobile agents based on active request priority (e.g., fetching a raw ingredient vs. delivering a processed plate).
+* **`abb_bridge.nodes` / Socket Hooks**: Handles real-time TCP/IP translation layers bridging Python execution strings into native ABB RAPID commands.
+
+</details>
+
+---
+
+## 🚀 Execution & Launch Sequence
+
+### 1. Initial Setup
+Ensure the ROS 2 workspace workspace (`colcon_ws`) is compiled and correctly sourced:
+    ```bash
+      cd ~/colcon_ws
+      colcon build --symlink-install
+      source install/setup.bash
+
+
+This system has been developed as a project in collaboration with Alejandro Sosa Viña and Miriam García de la Reina Padilla.
