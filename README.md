@@ -144,20 +144,21 @@ The IRB 120 model was obtained from https://github.com/IFRA-Cranfield/ros2_SimRe
 ---
 
 
+.
 ├── proyecto/
-│   ├── config/               # YAML configuration files (dynamic Nav2 configurations)
+│   ├── config/              # YAML configuration files (dynamic Nav2 configurations)
 │   ├── launch/
 │   │   ├── LogicaGeneral2.py # "Head Chef" core module (State Machine)
-│   │   ├── mov2.py           # Navigation bridge and odometry control node
+│   │   ├── mov2.py          # Navigation bridge and odometry control node
 │   │   ├── simulation.launch.py # Main launch file for the environment, Nav2, and robots
 │   │   └── ...
-│   ├── src/                  # Localization filters (correccionPos.py, tf_filter.py)
-│   ├── urdf/                 # Optimized XACRO/URDF models for the ABB IRB 120 and mobile robots
-│   ├── worlds/               # Gazebo Harmonic world files featuring the kitchen map
+│   ├── src/                 # Localization filters (correccionPos.py, tf_filter.py)
+│   ├── urdf/                # Optimized XACRO/URDF models for the ABB IRB 120 and mobile robots
+│   ├── worlds/              # Gazebo Harmonic world files featuring the kitchen map
 │   ├── CMakeLists.txt
 │   └── package.xml
-├── rapid/                    # RAPID source code files for the RobotStudio controller
-└── README.md                 # Project documentation
+├── rapid/                   # RAPID source code files for the RobotStudio controller
+└── README.md                # Project documentation
 
 </details>
 
@@ -181,7 +182,7 @@ The IRB 120 model was obtained from https://github.com/IFRA-Cranfield/ros2_SimRe
 4. Open the workspace station within RobotStudio, sync the code to the virtual controller, and press Play (Execute). The RAPID program will bind the socket and enter a passive listening state, waiting for the ROS2 client connection.
 5. Open a new terminal, navigate to the launch script directory, and start the node:
 ```bash
-  cd ~/overcooked_ws/src/proyecto/launch/
+  cd ~/overcooked/src/proyecto/launch/
   python3 LogicaGeneral2.py
 ```
 
