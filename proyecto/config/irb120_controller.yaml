@@ -1,0 +1,53 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 50 # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+    
+    irb120_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+# Configuración del Broadcaster (Reportero de estado)
+joint_state_broadcaster:
+  ros__parameters:
+    # IMPORTANTE: Dejamos esto vacío para que no falle si hay 
+    # discrepancias mínimas en los nombres de los joints.
+    joints: []
+    interfaces:
+      - position
+      - velocity
+
+# Configuración del controlador del brazo ABB
+irb120_controller:
+  ros__parameters:
+    joints:
+      - joint_1
+      - joint_2
+      - joint_3
+      - joint_4
+      - joint_5
+      - joint_6
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    
+    state_publish_rate: 50.0 # Bajamos a 50 para coincidir con update_rate
+    action_monitor_rate: 20.0
+    
+    # CAMBIO CRÍTICO: Permitimos metas parciales para evitar que el 
+    # controlador rechace activarse si Gazebo tarda en responder.
+    allow_partial_joints_goal: true
+    open_loop_control: true 
+    
+    constraints:
+      stopped_velocity_tolerance: 0.2
+      goal_time: 0.0
+      joint_1: { trajectory: 0.2, goal: 0.1 }
+      joint_2: { trajectory: 0.2, goal: 0.1 }
+      joint_3: { trajectory: 0.2, goal: 0.1 }
+      joint_4: { trajectory: 0.2, goal: 0.1 }
+      joint_5: { trajectory: 0.2, goal: 0.1 }
+      joint_6: { trajectory: 0.2, goal: 0.1 }

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+
+<robot name="robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  
+  
+
+  <xacro:arg name="namespace" default="robot_0" />
+  <xacro:arg name="colour_base" default="red"/>
+  
+  <xacro:property name="base_length" value="0.8" />
+  <xacro:property name="base_height" value="0.2" />
+  
+  <xacro:include filename="colours.xacro"/>
+  <xacro:include filename="chasis.xacro"/>
+  
+  <xacro:include filename="GazeboPlugins.xacro"/>
+  <xacro:include filename="lidar.xacro"/>
+  <xacro:include filename="camera.xacro"/>
+</robot>

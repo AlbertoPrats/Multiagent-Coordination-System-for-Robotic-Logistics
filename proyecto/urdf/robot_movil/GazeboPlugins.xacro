@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  
+    <gazebo reference="$(arg namespace)/free_wheel">
+        <mu1 value="0.01" />
+        <mu2 value="0.01" />
+    </gazebo>
+    
+
+    <gazebo>
+        <plugin 
+            filename="gz-sim-diff-drive-system" 
+            name="gz::sim::systems::DiffDrive">
+            <left_joint>$(arg namespace)/base_to_left_wheel</left_joint>
+            <right_joint>$(arg namespace)/base_to_right_wheel</right_joint>
+            <wheel_separation>${base_length*0.6+0.12}</wheel_separation>
+            <wheel_radius>0.15</wheel_radius>
+            <frame_id>$(arg namespace)/odom</frame_id>
+            <child_frame_id>$(arg namespace)/base_footprint_link</child_frame_id>
+            <publish_odom_tf>false</publish_odom_tf>
+            <cmd_vel_timeout>0.2</cmd_vel_timeout>
+        </plugin>
+    </gazebo>
+
+    <gazebo>
+        <plugin filename="ignition-gazebo-pose-publisher-system" name="ignition::gazebo::systems::PosePublisher">
+            <!-- Frecuencia a la que quieres la verdad absoluta (en Hz) -->
+            <publish_link_pose>true</publish_link_pose>
+            <publish_nested_model_pose>true</publish_nested_model_pose>
+            <use_pose_vector_msg>true</use_pose_vector_msg>
+            <update_frequency>100</update_frequency>
+        </plugin>
+    </gazebo>
+
+
+
+    <gazebo>
+        <plugin 
+            filename="gz-sim-joint-state-publisher-system" 
+            name="gz::sim::systems::JointStatePublisher">
+            <joint_name>$(arg namespace)/base_to_left_wheel</joint_name>
+            <joint_name>$(arg namespace)/base_to_right_wheel</joint_name>
+
+            <topic>/world/robot_world/model/$(arg namespace)/joint_state</topic>
+        </plugin>
+    </gazebo>
+
+</robot>

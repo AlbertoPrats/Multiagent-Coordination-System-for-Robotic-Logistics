@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+ 
+  <xacro:property name="wheel_radius" value="0.15" />
+  <xacro:property name="wheel_length" value="0.1" />
+  
+  <!-- Inercias -->
+  <xacro:macro name="base_inertia" params="mass x y z o_xyz o_rpy" >
+     <inertial>
+         <mass value="${mass}" />
+          <origin xyz="${o_xyz}" rpy="${o_rpy}" />
+          <inertia ixx="${mass / 12.0*(y*y + z*z)}" ixy="0.0" ixz="0.0"
+                            iyy="${mass / 12.0*(x*x + z*z)}" iyz="0.0"
+                            izz="${mass / 12.0*(x*x + y*y)}" />
+      </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="inertial_sphere" params="mass radius">
+    <inertial>
+      <mass value="${mass}" />
+      <inertia ixx="${(2/5) * mass * (radius*radius)}" ixy="0.0" ixz="0.0"
+               iyy="${(2/5) * mass * (radius*radius)}" iyz="0.0"
+               izz="${(2/5) * mass * (radius*radius)}" />
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="inertial_cylinder" params="mass length radius">
+    <inertial>
+      <mass value="${mass}" />
+      <inertia ixx="${(1/12) * mass * (3*radius*radius + length*length)}" ixy="0.0" ixz="0.0"
+               iyy="${(1/12) * mass * (3*radius*radius + length*length)}" iyz="0.0"
+               izz="${(1/2) * mass * (radius*radius)}" />
+    </inertial>
+  </xacro:macro>
+
+  <!-- Macros para los links -->
+  <xacro:macro name="base_link_macro" params="largo ancho alto mass offset_x">
+      <link name="$(arg namespace)/base_link">
+          <visual>
+              <origin xyz="${offset_x} 0 0" rpy="0 0 0"/>
+              <geometry>
+                  <box size="${largo} ${ancho} ${alto}" />
+              </geometry>
+              <material name="$(arg colour_base)"/>
+           </visual>
+           <xacro:base_inertia mass="${mass}" x="${largo}" y="${ancho}"
+            z="${alto}" o_xyz="0 0 0" o_rpy="0 0 0" />
+        <collision>
+            <geometry><box size="${largo} ${ancho} ${alto}" /></geometry>
+        </collision>
+      </link>
+  </xacro:macro>
+  
+  <xacro:macro name="wheel_macro" params="name radius length mass">
+      <link name="$(arg namespace)/${name}_wheel">
+      <visual>
+        <geometry>
+          <cylinder radius="${radius}" length="${length}"/>
+        </geometry>
+        <material name="black"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/> 
+      </visual>
+      <xacro:inertial_cylinder mass="${mass}" length="${length}" radius="${radius}" />
+      <collision>
+        <geometry>
+          <sphere radius="${radius}"/>
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+
+  <xacro:macro name="free_wheel_macro" params="radius mass">
+      <link name="$(arg namespace)/free_wheel">
+      <visual>
+        <geometry>
+          <sphere radius="${radius}"/>
+        </geometry>
+        <material name="white"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/> 
+      </visual>
+      <xacro:inertial_sphere mass="${mass}" radius="${radius}"/>
+      <collision>
+        <geometry>
+          <sphere radius="${radius}"/>
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+
+  
+  <!-- Creación de los links -->
+  <xacro:base_link_macro mass="5.0" largo="${base_length}" ancho="${base_length*0.6}" alto="${base_height}" offset_x="${base_length/2 - wheel_radius}"/>
+  <xacro:free_wheel_macro mass="2.0" radius="${wheel_radius/2-0.01}"/>
+  <xacro:wheel_macro mass="2.0" name="right" radius="${wheel_radius}" length="${wheel_length}"/>
+  <xacro:wheel_macro mass="2.0" name="left" radius="${wheel_radius}" length="${wheel_length}"/>
+
+  
+  <link name="$(arg namespace)/base_footprint_link"/>
+  
+  <link name="$(arg namespace)/base_camera">
+    <visual>
+      <geometry>
+          <box size="0.01 ${base_length*0.15} ${base_height/3}" />
+      </geometry>
+      <material name="black"/>
+   </visual>
+   <visual>
+      <geometry>
+          <cylinder radius="${base_height/8}" length="${0.02}"/>
+      </geometry>
+      <material name="sensor_grey"/>
+      <origin xyz="0 0 0" rpy="0 1.57075 0"/> 
+    </visual>
+  </link>
+  
+  <link name="$(arg namespace)/base_lidar">
+  <visual>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+          <box size="0.01 ${base_length*0.3} ${base_height/6}" />
+      </geometry>
+      <material name="black"/>
+   </visual>
+   <visual>
+      <geometry>
+          <box size="0.01 ${base_length*0.3-0.01} ${base_height/12}" />
+      </geometry>
+      <material name="$(arg colour_base)"/>
+      <origin xyz="0 0 0" rpy="0 1.57075 0"/> 
+    </visual>
+  </link>
+
+
+  <!-- Creación de los joints -->
+  <joint name="$(arg namespace)/base_to_right_wheel" type="continuous">
+    <parent link="$(arg namespace)/base_link"/>
+    <child link="$(arg namespace)/right_wheel"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="-1.57075 0 0" xyz="0 ${-base_length*0.3-wheel_length/2-0.01} ${-base_height/2}"/>
+  </joint>
+  
+  
+  <joint name="$(arg namespace)/base_to_left_wheel" type="continuous">
+    <parent link="$(arg namespace)/base_link"/>
+    <child link="$(arg namespace)/left_wheel"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="-1.57075 0 0" xyz="0 ${base_length*0.3+wheel_length/2+0.01} ${-base_height/2}"/>
+  </joint>
+
+
+  <joint name="$(arg namespace)/base_to_free_wheel" type="fixed">
+    <parent link="$(arg namespace)/base_link"/>
+    <child link="$(arg namespace)/free_wheel"/>
+    <origin rpy="-1.57075 0 0" xyz="${base_length-1.5*wheel_radius} 0 ${-base_height/2-wheel_radius/2-0.01}"/>
+  </joint>
+  
+  
+
+  <joint name="$(arg namespace)/base_to_base_footprint" type="fixed">
+    <parent link="$(arg namespace)/base_footprint_link"/>
+    <child link="$(arg namespace)/base_link"/>
+    <origin rpy="0 0 0" xyz="0 0 ${base_height/2+wheel_radius}"/>
+  </joint>
+
+  <joint name="$(arg namespace)/base_to_camera" type="fixed">
+    <parent link="$(arg namespace)/base_link"/>
+    <child link="$(arg namespace)/base_camera"/>
+    <origin rpy="0 0 0" xyz="${base_length - wheel_radius} 0 -0.05"/>
+  </joint>
+
+  <joint name="$(arg namespace)/base_to_lidar" type="fixed">
+    <parent link="$(arg namespace)/base_link"/>
+    <child link="$(arg namespace)/base_lidar"/>
+    <origin rpy="0 0 0" xyz="${base_length - wheel_radius} 0 0.05"/>
+  </joint>
+  
+
+  
+</robot>
