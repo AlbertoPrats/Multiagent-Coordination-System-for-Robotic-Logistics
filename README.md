@@ -146,17 +146,17 @@ The IRB 120 model was obtained from https://github.com/IFRA-Cranfield/ros2_SimRe
 
 
 ├── proyecto/  
-│   ├── config/              # YAML configuration files (dynamic Nav2 configurations)  
-│   ├── launch/  
-│   │   ├── LogicaGeneral2.py # "Head Chef" core module (State Machine)  
-│   │   ├── mov2.py          # Navigation bridge and odometry control node  
-│   │   ├── simulation.launch.py # Main launch file for the environment, Nav2, and robots  
-│   │   └── ...  
-│   ├── src/                 # Localization filters (correccionPos.py, tf_filter.py)  
-│   ├── urdf/                # Optimized XACRO/URDF models for the ABB IRB 120 and mobile robots  
-│   ├── worlds/              # Gazebo Harmonic world files featuring the kitchen map  
-│   ├── CMakeLists.txt  
-│   └── package.xml  
+│  ├── config/                # YAML configuration files (dynamic Nav2 configurations)  
+│  ├── launch/  
+│  │  ├── LogicaGeneral2.py  # "Head Chef" core module (State Machine)  
+│  │  ├── mov2.py            # Navigation bridge and odometry control node  
+│  │  ├── simulation.launch.py # Main launch file for the environment, Nav2, and robots  
+│  │  └── ...  
+│  ├── src/                    # Localization filters (correccionPos.py, tf_filter.py)  
+│  ├── urdf/                    # Optimized XACRO/URDF models for the ABB IRB 120 and mobile robots  
+│  ├── worlds/                  # Gazebo Harmonic world files featuring the kitchen map  
+│  ├── CMakeLists.txt  
+│  └── package.xml  
 ├── rapid/                   # RAPID source code files for the RobotStudio controller  
 └── README.md                # Project documentation  
 
