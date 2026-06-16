@@ -104,7 +104,7 @@ The ecosystem features a fully decoupled, hybrid architecture where **ROS2 acts 
         LG <-->|Cut/Plate Commands & Joint Telemetry via Sockets| RS
         RS <-->|Low-Level Industrial Control| IRB
         RS -->|Visual Joint Updates| GZ
-
+```
 
 
 
