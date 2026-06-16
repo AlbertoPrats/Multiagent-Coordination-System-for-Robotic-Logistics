@@ -144,11 +144,9 @@ The IRB 120 model was obtained from https://github.com/IFRA-Cranfield/ros2_SimRe
 ---
 
 
-.
-├── proyecto/
 
-│   ├── config/              # YAML configuration files (dynamic Nav2 configurations)
-
+├── proyecto/  
+│   ├── config/              # YAML configuration files (dynamic Nav2 configurations)  
 │   ├── launch/
 │   │   ├── LogicaGeneral2.py # "Head Chef" core module (State Machine)
 │   │   ├── mov2.py          # Navigation bridge and odometry control node
