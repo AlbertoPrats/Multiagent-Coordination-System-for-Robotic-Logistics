@@ -11,7 +11,7 @@
 [![Project Type](https://img.shields.io/badge/Project-Multi--Robot%20System-blue.svg)](#)
 [![Arm](https://img.shields.io/badge/Robot-ABB%20IRB%20120-red.svg)](https://new.abb.com/products/robotics/industrial-robots/irb-120)
 [![ROS 2](https://img.shields.io/badge/ROS2-Jazzy-green.svg)](https://docs.ros.org/)
-[![Simulation](https://img.shields.io/badge/Simulation-Gazebo%20%2F%20Harmonic%20%2F%20RobotStudio-orange.svg)](#)
+[![Simulation](https://img.shields.io/badge/Simulation-Gazebo%20Harmonic%20%2F%20RobotStudio-orange.svg)](#)
 [![Navigation](https://img.shields.io/badge/Navigation-Nav2%20%2F%20AMCL-yellow.svg)](https://navigation.ros.org/)
 
 **Robotic Overcooked** is an advanced multi-robot coordination and task-allocation system inspired by the mechanics of the popular cooperative video game *Overcooked*, this project transitions those scheduling abstractions into a rigorous, simulated industrial kitchen-logistics cell. The application demonstrates how mobile manipulation agents, decentralized fleet managers, and static assembly arms can safely share a confined map layout, minimize navigation interference, and dynamic load-balance ongoing raw ingredient orders.
